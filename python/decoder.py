@@ -121,6 +121,52 @@ class Decoder(object):
     return ec.ComputeErrorRates(total_label_counts, total_word_counts,
                                 sequence_errors, num_steps * batch_size)
 
+  def SoftmaxInfer(self, sess, model, num_lines):
+    """Do the inference in softmax mode.
+
+    return the OCR result string
+    Args:
+      sess:  A tensor flow Session.
+      model: The model to run in the session. Requires a VGSLImageModel or any
+        other class that has a using_ctc attribute and a RunAStep(sess) method
+        that reurns a softmax result with corresponding labels.
+      num_lines: The number of lines in the data pattern
+    Returns:
+      prediction result string
+    Raises:
+      ValueError: If an unsupported number of dimensions is used.
+    """
+    coord = tf.train.Coordinator()
+    threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+    result=[]
+    # Summarize the outputs of the softmax.
+    for _ in xrange(num_lines):
+      softmax_result, labels = model.RunAStep(sess)
+      # Collapse softmax to same shape as labels.
+      predictions = softmax_result.argmax(axis=-1)
+      # Exclude batch from num_dims.
+      num_dims = len(predictions.shape) - 1
+      batch_size = predictions.shape[0]
+      null_label = softmax_result.shape[-1] - 1
+      for b in xrange(batch_size):
+        if num_dims == 2:
+          # TODO(rays) Support 2-d data.
+          raise ValueError('2-d label data not supported yet!')
+        else:
+          if num_dims == 1:
+            pred_batch = predictions[b, :]
+          else:
+            pred_batch = [predictions[b]]
+          text = self.StringFromCTC(pred_batch, model.using_ctc, null_label)
+          result.append(text)
+
+    coord.request_stop()
+    coord.join(threads)
+    combined = '\n'.join(result)
+    print(combined)
+    return combined
+
+
   def StringFromCTC(self, ctc_labels, merge_dups, null_label):
     """Decodes CTC output to a string.
 
