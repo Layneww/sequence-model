@@ -27,6 +27,7 @@ flags.DEFINE_string('decoder', '../dataset_ctc/tha+eng/charset_size=225.txt', 'C
 
 FLAGS = flags.FLAGS
 
+# initialise params
 alphabet=''
 RESIZE=60
 
