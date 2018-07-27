@@ -182,6 +182,55 @@ def Eval(train_dir,
   return rates
 
 
+def Inference(train_dir,
+         model_str,
+         infer_data,
+         decoder_file,
+         num_lines,
+         graph_def_file=None,
+         reader=None):
+  """Restores a model from a checkpoint and evaluates it.
+
+  Args:
+    train_dir: Directory to find checkpoints.
+    model_str: Network specification string.
+    infer_data: Inference data file pattern.
+    decoder_file: File to read to decode the labels.
+    num_lines: Number of lines in infer_data
+    graph_def_file: File to write graph definition to for freezing.
+    reader: Function that returns an actual reader to read Examples from input
+      files. If None, uses tf.TFRecordReader().
+  Returns:
+    (char error rate, word recall error rate, sequence error rate) as percent.
+  Raises:
+    ValueError: If unimplemented feature is used.
+  """
+  decode = None
+  ocr_result=''
+  if decoder_file:
+    decode = decoder.Decoder(decoder_file)
+
+  # Run inference
+  with tf.Graph().as_default():
+    model = InitNetwork(infer_data, model_str, 'eval', reader=reader)
+
+    sess = tf.Session('')
+    if graph_def_file is not None:
+      # Write the eval version of the graph to a file for freezing.
+      if not tf.gfile.Exists(graph_def_file):
+        with tf.gfile.FastGFile(graph_def_file, 'w') as f:
+          f.write(
+              sess.graph.as_graph_def(add_shapes=True).SerializeToString())
+    ckpt = tf.train.get_checkpoint_state(train_dir)
+    if ckpt and ckpt.model_checkpoint_path:
+      step = model.Restore(ckpt.model_checkpoint_path, sess)
+      if decode:
+        ocr_result = decode.SoftmaxInfer(sess, model, num_lines)
+      else:
+        raise ValueError('Non-softmax decoder evaluation not implemented!')
+  return ocr_result
+
+
 def InitNetwork(input_pattern,
                 model_spec,
                 mode='eval',
