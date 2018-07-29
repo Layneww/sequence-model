@@ -137,6 +137,7 @@ tensorboard --logdir=$train_dir
 To test the sequence model. Suppose we have an image called `test.png` mixed with thai and english,
 get the OCR result
 ```
+export PYTHONIOENCODING=UTF-8
 train_dir=../model
 python3 inference.py --train_dir=$train_dir --model_str='1,60,0,1[Ct5,5,16 Mp3,3 Lfys64 Lfx128 Lrx128 Lfx256]O1c225'
                     --image=test.png --decoder=../dataset/tha+eng/charset_size=225.txt
