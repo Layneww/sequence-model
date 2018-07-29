@@ -10,9 +10,9 @@ Available at: http://link.springer.com/chapter/10.1007%2F978-3-319-46604-0_30
 ## Contents
 * [Introduction](#introduction)
 * [Installing and setting up the sequence model](#installing-and-setting-up-the-street-model)
-* [Create dataset](#Create dataset)
-* [Training a full model with evaluation](# Training a full model with evaluation)
-* [Inference and Comparison with Tesseract performance](#Inference and Comparison with Tesseract performance)
+* [Create dataset](#create-dataset)
+* [Training a full model with evaluation](#training-a-full-model-with-evaluation)
+* [Inference and Comparison with Tesseract performance](#inference-and-omparison-with-tesseract-performance)
 * [The Variable Graph Specification Language](#the-variable-graph-specification-language)
 
 ## Introduction
@@ -21,7 +21,8 @@ The model trains both Thai and English in one charset. The input is an textline 
 
 
 ## Installing and setting up the sequence model
-###Build from docker file. 
+
+### Build from docker file. 
 Create docker image from docerfile folder.
 ```
 cd dockerfile
@@ -31,6 +32,7 @@ Create container using
 ```
 nvidia-smi docker run -it -d --name <container name> -p 8888:8888 -p 6006:6006 -v <directory to be mapped>:<target mapped directory in docker> <image name>  /bin/bash
 ```
+
 ### Build some dependencies
 tesseract 4.0 beta3. Refer to https://github.com/Layneww/Tesseract-Notes/blob/master/setupTesseract.md, Build Tesseract master branch from source. Please also build the training.
 
@@ -68,6 +70,7 @@ python vgsl_model_test.py
 ```
 
 ## Create dataset
+
 ### Create text files
 You can other download the text files from the release or create own customised text files.
 #### Download from the release
@@ -119,6 +122,7 @@ cat ../dataset/tha+eng/eval.txt | parallel -j40 create_tfrecords.py --langs tha+
 ```
 
 The tfrecords will be put in ```dataset/tha+eng/tfrecords/```, consisting of 2 subfolder `train/` and `eval/`.
+
 ## Training a full model with evaluation
 ```
 cd python
