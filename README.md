@@ -61,12 +61,12 @@ Refering to [TensorFlow Instruction](https://www.tensorflow.org/extend/adding_an
 
 Run the unittests:
 ```
-cd ../python
-python decoder_test.py
-python errorcounter_test.py
-python shapes_test.py
-python vgslspecs_test.py
-python vgsl_model_test.py
+cd python
+python3 decoder_test.py
+python3 errorcounter_test.py
+python3 shapes_test.py
+python3 vgslspecs_test.py
+python3 vgsl_model_test.py
 ```
 
 ## Create dataset
