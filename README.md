@@ -7,6 +7,8 @@ A TensorFlow implementation of the STREET model described in the paper:
 
 Available at: http://link.springer.com/chapter/10.1007%2F978-3-319-46604-0_30
 
+The code has been mainly referred to the [STREET model](https://github.com/mldbai/tensorflow-models/tree/master/street).
+
 ## Contents
 * [Introduction](#introduction)
 * [Installing and setting up the sequence model](#installing-and-setting-up-the-street-model)
@@ -145,10 +147,4 @@ python3 inference.py --train_dir=$train_dir --model_str='1,60,0,1[Ct5,5,16 Mp3,3
 The output will first print how many lines it finds during the preprocessing, and output the OCR result.
 
 ## The Variable Graph Specification Language
-
-The STREET model makes use of a graph specification language (VGSL) that
-enables rapid experimentation with different model architectures. The language
-defines a Tensor Flow graph that can be used to process images of variable sizes
-to output a 1-dimensional sequence, like a transcription/OCR problem, or a
-0-dimensional label, as for image identification problems. For more information
-see [vgslspecs](g3doc/vgslspecs.md)
+Please see https://github.com/mldbai/tensorflow-models/blob/master/street/g3doc/vgslspecs.md for more details.
