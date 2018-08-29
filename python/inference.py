@@ -148,9 +148,12 @@ def main(argv):
   infer_data = createTFRecord(FLAGS.image, tempdir)
   num_lines = int(os.path.basename(infer_data).split('-', 1)[0])
   setup()
+  import time
+  start = time.time()
   vgsl_model.Inference(FLAGS.train_dir, FLAGS.model_str,
                   infer_data, FLAGS.decoder, num_lines,
                   FLAGS.graph_def_file)
+  print('spent: {:.2f}s'.format(time.time()-start))
   cleanup(tempdir)
 
 if __name__ == '__main__':

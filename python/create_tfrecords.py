@@ -9,8 +9,8 @@ import time
 
 
 RESIZE=60
-raw_data_dir = '/data/LSTM/dataset2/'
-output_dir = '/data/street/dataset_ctc/'
+raw_data_dir = ''
+output_dir = ''
 langs = 'tha+eng'
 unichar_dir = output_dir+langs
 alphabet = u''
@@ -145,7 +145,7 @@ def padLabels(label, max_length=200):
 # box file: <0:symbol/tab> <1:left> <2:bottom> <3:right> <4:top> <5:page num>
 def createTFRecord(box_path, train_eval):
     basename = os.path.basename(box_path)
-    tfrecords_dir = output_dir+langs+'/tfrecords/'+train_eval+'/'
+    tfrecords_dir = output_dir+train_eval+'/'
     if not os.path.exists(tfrecords_dir): os.mkdir(tfrecords_dir)
     tfrecords_filename = tfrecords_dir+os.path.splitext(basename)[0]+'.tfrecords'
     writer = tf.python_io.TFRecordWriter(tfrecords_filename)
@@ -185,15 +185,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("box_path", type=str, help="the full path name of the box file")
     parser.add_argument("type", type=str, choices=['train','eval'], help="create data for train or eval")
-    parser.add_argument("--data_dir", type=str, default='/data/LSTM/dataset2/',
-			help="raw data directory, default='/data/LSTM/dataset2/'")
-    parser.add_argument("--output_dir", type=str, default='/data/street/dataset_ctc/', help="directory of output dataset, default='/data/street/dataset_ctc/'")
+    parser.add_argument("--data_dir", type=str, default='../dataset/',
+			help="raw data directory, default='../dataset/'")
+    parser.add_argument("--output_dir", type=str, default='../dataset/tha+eng/tfrecords/', help="directory of output dataset, default='../dataset/tha+eng/tfrecords/'")
     parser.add_argument("--langs", type=str, default='tha+eng', help="languages, default='tha+eng'")
     args = parser.parse_args()
     raw_data_dir = args.data_dir
     output_dir = args.output_dir
     langs = args.langs
-    unichar_dir = output_dir+langs
+    if output_dir == '../dataset/tha+eng/tfrecords/':
+        if langs != 'tha+eng':
+            output_dir = '../dataset/{}/tfrecords/'.format(langs)
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+    unichar_dir = raw_data_dir+langs
     alphabet = getAlphabet(unichar_dir)
     # print("finish create tfrecord for",os.path.basename(args.box_path))
     createTFRecord(args.box_path, args.type)

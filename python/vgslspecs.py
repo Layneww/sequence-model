@@ -53,9 +53,10 @@ class VGSLSpecs(object):
     self.reduction_factors = [1.0, 1.0, 1.0, 1.0]
     # List of Op parsers.
     # TODO(rays) add more Op types as needed.
-    self.valid_ops = [self.AddSeries, self.AddParallel, self.AddConvLayer,
+    self.valid_ops = [self.AddSeries, self.AddParallel, self.AddConvLayer, 
+                      self.AddDeConvLayer, self.AddBilinear,
                       self.AddMaxPool, self.AddDropout, self.AddReShape,
-                      self.AddFCLayer, self.AddLSTMLayer]
+                      self.AddFCLayer, self.AddRes50, self.AddLSTMLayer]
     # Translation table to convert unacceptable characters that may occur
     # in op strings that cannot be used as names.
     self.transtab = "".maketrans('(,)', '___')
@@ -260,6 +261,49 @@ class VGSLSpecs(object):
     return slim.conv2d(
         prev_layer, depth, [height, width], activation_fn=fn,
         scope=name), m.end()
+  def AddBilinear(self, prev_layer, index):
+    """Add a single standard deconvolutional layer.
+
+    Args:
+      prev_layer: Input tensor.
+      index:      Position in model_str to start parsing
+
+    Returns:
+      Output tensor, end index in model_str.
+    """
+    pattern = re.compile(R'(Bl)')
+    m = pattern.match(self.model_str, index)
+    if m is None:
+      return None, None
+    layer = tf.image.resize_images(prev_layer, [shapes.tensor_dim(prev_layer, dim=1), tf.cast(self.widths[0], tf.int32)])
+    self.reduction_factors[2] = 1.0
+    return layer, m.end()
+
+  def AddDeConvLayer(self, prev_layer, index):
+    """Add a single standard deconvolutional layer.
+
+    Args:
+      prev_layer: Input tensor.
+      index:      Position in model_str to start parsing
+
+    Returns:
+      Output tensor, end index in model_str.
+    """
+    pattern = re.compile(R'(DeC)(s|t|r|l|m)({\w+})?(\d+),(\d+),(\d+),(\d+)')
+    m = pattern.match(self.model_str, index)
+    if m is None:
+      return None, None
+    name = self._GetLayerName(m.group(0), index, m.group(3))
+    width = int(m.group(4))
+    height = int(m.group(5))
+    depth = int(m.group(6))
+    stride = int(m.group(7))
+    fn = self._NonLinearity(m.group(2))
+    self.reduction_factors[1] /= stride
+    self.reduction_factors[2] /= stride
+    return slim.conv2d_transpose(
+        prev_layer, depth, [height, width], stride, activation_fn=fn,
+        scope=name), m.end()
 
   def AddMaxPool(self, prev_layer, index):
     """Add a maxpool layer.
@@ -378,6 +422,27 @@ class VGSLSpecs(object):
         output, [shapes.tensor_dim(prev_layer, 0), 1, 1, depth],
         name=name + '_reshape_out'), m.end()
 
+  def AddRes50(self, prev_layer, index):
+    """Add a single ResNet 50 layer.
+
+    Args:
+      prev_layer: Input tensor.
+      index:      Position in model_str to start parsing
+
+    Returns:
+      Output tensor, end index in model_str.
+    """
+    pattern = re.compile(R'(Res)')
+    m = pattern.match(self.model_str, index)
+    if m is None:
+      return None, None
+    #name = self._GetLayerName(m.group(0), index, m.group(3))
+    self.reduction_factors[1] *= 32
+    self.reduction_factors[2] *= 32
+    outputs = resnet_v2.resnet_v2_50(prev_layer,global_pool=False)[0]
+    #outputs = tf.transpose(outputs, [0, 2, 1, 3])
+    return outputs, m.end() 
+
   def AddLSTMLayer(self, prev_layer, index):
     """Parse expression and add LSTM Layer.
 
@@ -434,6 +499,10 @@ class VGSLSpecs(object):
     Returns:
       Output tensor.
     """
+    print('batch',shapes.tensor_dim(prev_layer, 0))
+    print('y',prev_layer.shape)
+    print('x',shapes.tensor_dim(prev_layer, 2))
+    print('depth',shapes.tensor_dim(prev_layer, 3))
     # If the target dimension is y, we need to transpose.
     if dim == 'x':
       lengths = self.GetLengths(2, 1)

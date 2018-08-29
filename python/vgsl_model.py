@@ -1,5 +1,4 @@
 # Copyright 2016 The TensorFlow Authors. All Rights Reserved.
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -446,6 +445,8 @@ class VGSLImageModel(object):
     Raises:
       ValueError: if syntax is incorrect.
     """
+    # bilinear interpolation
+    #prev_layer = tf.image.resize_images(prev_layer, [shapes.tensor_dim(prev_layer, dim=1), shapes.tensor_dim(self.labels, dim=1)])
     # Reduce dimensionality appropriate to the output dimensions.
     batch_in = shapes.tensor_dim(prev_layer, dim=0)
     height_in = shapes.tensor_dim(prev_layer, dim=1)

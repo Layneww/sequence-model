@@ -186,6 +186,9 @@ def lstm_layer(inp,
       if length is None:
         inp = tf.reverse(inp, [1])
       else:
+        print('name', name)
+        print('input shape:', inp.get_shape().as_list())
+        print('length:', length)
         inp = tf.reverse_sequence(inp, length, 1, 0)
 
     num_prev = inp.get_shape()[2]
