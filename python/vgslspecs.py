@@ -499,10 +499,10 @@ class VGSLSpecs(object):
     Returns:
       Output tensor.
     """
-    print('batch',shapes.tensor_dim(prev_layer, 0))
-    print('y',prev_layer.shape)
-    print('x',shapes.tensor_dim(prev_layer, 2))
-    print('depth',shapes.tensor_dim(prev_layer, 3))
+#     print('batch',shapes.tensor_dim(prev_layer, 0))
+#     print('y',prev_layer.shape)
+#     print('x',shapes.tensor_dim(prev_layer, 2))
+#     print('depth',shapes.tensor_dim(prev_layer, 3))
     # If the target dimension is y, we need to transpose.
     if dim == 'x':
       lengths = self.GetLengths(2, 1)
