@@ -38,16 +38,16 @@ nvidia-smi docker run -it -d --name <container name> -p 8888:8888 -p 6006:6006 -
 ### Build some dependencies
 tesseract 4.0 beta3. Refer to https://github.com/Layneww/Tesseract-Notes/blob/master/setupTesseract.md, Build Tesseract master branch from source. Please also build the training.
 
-tesserocr: the python wrapper for tesseract. 
+tesserocr: the python wrapper for tesseract. (optional, install for inference)
 ```
 # go into the tesseract directory just git clone from github
 cd tesseract
 # include 'tesseract/osdetect.h' in library
 cp src/ccmain/osdetect.h /usr/local/include/tesseract/
-# install tesserocr
+# install tesserocr 
 pip install tesserocr
 ```
-pytesseract: another python wrapper
+pytesseract: another python wrapper (optional, install for inference)
 ```pip install pytesseract```
 
 ### Build ops
