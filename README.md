@@ -145,6 +145,7 @@ python3 inference.py --train_dir=$train_dir --model_str='1,60,0,1[Ct5,5,16 Mp3,3
                     --image=test.png --decoder=../dataset/tha+eng/charset_size=225.txt
 ```
 The output will first print how many lines it finds during the preprocessing, and output the OCR result.
+You can use a pre-trained model, which can be downloaded in the release (`model.zip`). Then just set the `--train_dir` to the path of the model.
 
 ## The Variable Graph Specification Language
 Please see https://github.com/mldbai/tensorflow-models/blob/master/street/g3doc/vgslspecs.md for more details.
