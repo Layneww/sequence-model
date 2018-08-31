@@ -9,6 +9,8 @@ Available at: http://link.springer.com/chapter/10.1007%2F978-3-319-46604-0_30
 
 The code has been mainly referred to the [STREET model](https://github.com/mldbai/tensorflow-models/tree/master/street).
 
+See [inference output](python/inference.ipynb) for ocr example.
+
 ## Contents
 * [Introduction](#introduction)
 * [Installing and setting up the sequence model](#installing-and-setting-up-the-street-model)
@@ -23,6 +25,9 @@ The model trains both Thai and English in one charset. The input is an textline 
 
 
 ## Installing and setting up the sequence model
+```
+git clone https://github.wdf.sap.corp/I351756/sequence-model.git
+```
 
 ### Build from docker file. 
 Create docker image from docerfile folder.
@@ -33,6 +38,31 @@ docker build -t <image name> .
 Create container using 
 ```
 nvidia-smi docker run -it -d --name <container name> -p 8888:8888 -p 6006:6006 -v <directory to be mapped>:<target mapped directory in docker> <image name>  /bin/bash
+```
+### Build from scratch
+- Build an container from docker image `tensorflow/tensorflow:latest-gpu-py3` or `tensorflow/tensorflow:latest-py3`(Tested for Tensorflow/Tensorflow-gui 1.7 and 1.9)
+- Set all proxy (refer to `dockerfile/Dockerfile`)
+- Install some python dependencies
+```
+pip3 --no-cache-dir install \
+        Pillow \
+        h5py \
+        ipykernel \
+        jupyter \
+        matplotlib \
+        numpy \
+        pandas \
+        scipy \
+        sklearn \
+        keras \
+        nltk \
+	scikit-image \
+        && \
+    python3 -m ipykernel.kernelspec
+```
+- Install opencv
+```
+bash dockerfile/install-opencv.sh
 ```
 
 ### Build some dependencies
@@ -50,6 +80,11 @@ pip install tesserocr
 pytesseract: another python wrapper (optional, install for inference)
 ```pip install pytesseract```
 
+### If you want to run in a CPU environment
+```
+pip uninstall tensorflow-gpu
+pip install tensorflow
+```
 ### Build ops
 Go into the directory of this project.
 ```
@@ -136,6 +171,7 @@ tensorboard --logdir=$train_dir
 ```
 
 ## Inference and Comparison with Tesseract performance
+### Inference of the sequence model
 To test the sequence model. Suppose we have an image called `test.png` mixed with thai and english,
 get the OCR result
 ```
@@ -146,6 +182,15 @@ python3 inference.py --train_dir=$train_dir --model_str='1,60,0,1[Ct5,5,16 Mp3,3
 ```
 The output will first print how many lines it finds during the preprocessing, and output the OCR result.
 You can use a pre-trained model, which can be downloaded in the release (`model.zip`). Then just set the `--train_dir` to the path of the model.
+### Inference of tesseract
+```
+tesseract -l tha+eng test.png stdout --tessdata <the path of the tessdata folder>
+```
+### Jupyter notebook
+You may also refer to `python/inference.ipynb`.
+
+### Test images
+Some example images under the `test-image.zip` can be downloaded in the release.
 
 ## The Variable Graph Specification Language
 Please see https://github.com/mldbai/tensorflow-models/blob/master/street/g3doc/vgslspecs.md for more details.
