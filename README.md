@@ -1,5 +1,8 @@
 # Multilingual Sequence Model.
+This is a python implementation of the Google open source OCR [Tesseract](https://github.com/tesseract-ocr/tesseract), LSTM version.
+The preprocessing takes the advantages of tesseract's preprocessing (deskew, adaptive threshold and page layout analysis)
 
+Model Code wise:
 Refer to 
 A TensorFlow implementation of the STREET model described in the paper:
 
